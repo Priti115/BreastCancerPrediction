@@ -78,4 +78,11 @@ We used the **Breast Cancer Wisconsin (Diagnostic) Data Set** from UCI Machine L
 ---
 
 ## 📝 Project Structure
-
+📁 project/
+│
+├── app.py # Flask backend
+├── model.pkl # Trained ML model (Logistic Regression)
+├── templates/
+│ └── index.html # User interface for prediction
+├── requirements.txt # Dependencies
+├── README.md # Project documentation
