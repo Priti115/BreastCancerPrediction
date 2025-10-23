@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breast Cancer Prediction</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #9c27b0;
+            --secondary-color: #673ab7;
+            --accent-color: #ff4081;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: var(--dark-color);
+        }
+
+        .hero-section {
+            background: linear-gradient(to right, var(--secondary-color), var(--primary-color));
+            color: white;
+            padding: 3rem 0;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+
+        .card-header {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            font-weight: bold;
+            border-bottom: none;
+        }
+
+        .btn-predict {
+            background: linear-gradient(to right, var(--accent-color), #ff6b6b);
+            border: none;
+            padding: 10px 25px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-predict:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 64, 129, 0.4);
+        }
+
+        .result-box {
+            border-left: 5px solid var(--accent-color);
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .quote-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quote-text {
+            font-style: italic;
+            font-size: 1.1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .quote-author {
+            font-weight: bold;
+            text-align: right;
+            color: var(--primary-color);
+            margin-top: 1rem;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .input-field {
+            border-radius: 10px;
+            padding: 12px 20px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(156, 39, 176, 0.25);
+        }
+
+        .feature-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-group h5 {
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 64, 129, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 64, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 64, 129, 0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero-section animate__animated animate__fadeIn">
+        <div class="container text-center">
+            <h1 class="display-4 fw-bold mb-4 animate__animated animate__fadeInDown">Breast Cancer Prediction</h1>
+            <p class="lead animate__animated animate__fadeInUp animate__delay-1s">Advanced machine learning model to help detect breast cancer early</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <!-- Main Prediction Form -->
+            <div class="col-lg-8">
+                <div class="card animate__animated animate__fadeInLeft">
+                    <div class="card-header">
+                        <h3 class="mb-0"><i class="fas fa-diagnoses me-2"></i>Cancer Detection</h3>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-4">Enter the 30 feature values from your breast mass characteristics:</p>
+                        <form action="/predict" method="POST" id="predictionForm">
+                            <!-- Mean Features -->
+                            <div class="feature-group">
+                                <h5>Mean Features</h5>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="radius_mean" class="form-label">Radius Mean</label>
+                                        <input type="number" step="any" class="form-control input-field" id="radius_mean" name="radius_mean" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="texture_mean" class="form-label">Texture Mean</label>
+                                        <input type="number" step="any" class="form-control input-field" id="texture_mean" name="texture_mean" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="perimeter_mean" class="form-label">Perimeter Mean</label>
+                                        <input type="number" step="any" class="form-control input-field" id="perimeter_mean" name="perimeter_mean" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="area_mean" class="form-label">Area Mean</label>
+                                        <input type="number" step="any" class="form-control input-field" id="area_mean" name="area_mean" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="smoothness_mean" class="form-label">Smoothness Mean</label>
+                                        <input type="number" step="any" class="form-control input-field" id="smoothness_mean" name="smoothness_mean" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="compactness_mean" class="form-label">Compactness Mean</label>
+                                        <input type="number" step="any" class="form-control input-field" id="compactness_mean" name="compactness_mean" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="concavity_mean" class="form-label">Concavity Mean</label>
+                                        <input type="number" step="any" class="form-control input-field" id="concavity_mean" name="concavity_mean" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="concave_points_mean" class="form-label">Concave Points Mean</label>
+                                        <input type="number" step="any" class="form-control input-field" id="concave_points_mean" name="concave_points_mean" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="symmetry_mean" class="form-label">Symmetry Mean</label>
+                                        <input type="number" step="any" class="form-control input-field" id="symmetry_mean" name="symmetry_mean" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="fractal_dimension_mean" class="form-label">Fractal Dimension Mean</label>
+                                        <input type="number" step="any" class="form-control input-field" id="fractal_dimension_mean" name="fractal_dimension_mean" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Standard Error Features -->
+                            <div class="feature-group">
+                                <h5>Standard Error Features</h5>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="radius_se" class="form-label">Radius SE</label>
+                                        <input type="number" step="any" class="form-control input-field" id="radius_se" name="radius_se" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="texture_se" class="form-label">Texture SE</label>
+                                        <input type="number" step="any" class="form-control input-field" id="texture_se" name="texture_se" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="perimeter_se" class="form-label">Perimeter SE</label>
+                                        <input type="number" step="any" class="form-control input-field" id="perimeter_se" name="perimeter_se" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="area_se" class="form-label">Area SE</label>
+                                        <input type="number" step="any" class="form-control input-field" id="area_se" name="area_se" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="smoothness_se" class="form-label">Smoothness SE</label>
+                                        <input type="number" step="any" class="form-control input-field" id="smoothness_se" name="smoothness_se" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="compactness_se" class="form-label">Compactness SE</label>
+                                        <input type="number" step="any" class="form-control input-field" id="compactness_se" name="compactness_se" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="concavity_se" class="form-label">Concavity SE</label>
+                                        <input type="number" step="any" class="form-control input-field" id="concavity_se" name="concavity_se" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="concave_points_se" class="form-label">Concave Points SE</label>
+                                        <input type="number" step="any" class="form-control input-field" id="concave_points_se" name="concave_points_se" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="symmetry_se" class="form-label">Symmetry SE</label>
+                                        <input type="number" step="any" class="form-control input-field" id="symmetry_se" name="symmetry_se" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="fractal_dimension_se" class="form-label">Fractal Dimension SE</label>
+                                        <input type="number" step="any" class="form-control input-field" id="fractal_dimension_se" name="fractal_dimension_se" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Worst Features -->
+                            <div class="feature-group">
+                                <h5>Worst Features</h5>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="radius_worst" class="form-label">Radius Worst</label>
+                                        <input type="number" step="any" class="form-control input-field" id="radius_worst" name="radius_worst" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="texture_worst" class="form-label">Texture Worst</label>
+                                        <input type="number" step="any" class="form-control input-field" id="texture_worst" name="texture_worst" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="perimeter_worst" class="form-label">Perimeter Worst</label>
+                                        <input type="number" step="any" class="form-control input-field" id="perimeter_worst" name="perimeter_worst" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="area_worst" class="form-label">Area Worst</label>
+                                        <input type="number" step="any" class="form-control input-field" id="area_worst" name="area_worst" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="smoothness_worst" class="form-label">Smoothness Worst</label>
+                                        <input type="number" step="any" class="form-control input-field" id="smoothness_worst" name="smoothness_worst" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="compactness_worst" class="form-label">Compactness Worst</label>
+                                        <input type="number" step="any" class="form-control input-field" id="compactness_worst" name="compactness_worst" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="concavity_worst" class="form-label">Concavity Worst</label>
+                                        <input type="number" step="any" class="form-control input-field" id="concavity_worst" name="concavity_worst" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="concave_points_worst" class="form-label">Concave Points Worst</label>
+                                        <input type="number" step="any" class="form-control input-field" id="concave_points_worst" name="concave_points_worst" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="symmetry_worst" class="form-label">Symmetry Worst</label>
+                                        <input type="number" step="any" class="form-control input-field" id="symmetry_worst" name="symmetry_worst" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="fractal_dimension_worst" class="form-label">Fractal Dimension Worst</label>
+                                        <input type="number" step="any" class="form-control input-field" id="fractal_dimension_worst" name="fractal_dimension_worst" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-predict btn-lg animate__animated animate__pulse animate__infinite animate__slower">
+                                    <i class="fas fa-search me-2"></i>Predict
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Result Box - Will be shown only after form submission -->
+                        {% if message %}
+                        <div class="result-box mt-4 animate__animated animate__fadeIn" id="resultBox">
+                            <h4 class="mb-3"><i class="fas fa-poll me-2"></i>Prediction Result</h4>
+                            <div class="alert {% if message[0] == 'Cancer Detected' %}alert-danger{% else %}alert-success{% endif %}">
+                                <strong>{{ message[0] }}</strong>
+                            </div>
+                            {% if message[0] == 'Cancer Detected' %}
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>Please consult with a medical professional immediately for further evaluation.
+                            </div>
+                            {% else %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-check-circle me-2"></i>No signs of cancer detected. Regular check-ups are still recommended.
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <div class="quote-card mb-4 animate__animated animate__fadeInRight animate__delay-1s">
+                    <p class="quote-text">"Early detection saves lives. The strongest weapon against breast cancer is knowledge and timely action."</p>
+                    <p class="quote-author">- Dr. Susan Love</p>
+                </div>
+
+                <div class="card animate__animated animate__fadeInRight animate__delay-2s">
+                    <div class="card-header">
+                        <h3 class="mb-0"><i class="fas fa-info-circle me-2"></i>How It Works</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-start mb-3">
+                            <div class="me-3 text-center">
+                                <i class="fas fa-flask feature-icon floating"></i>
+                            </div>
+                            <div>
+                                <h5>Machine Learning Model</h5>
+                                <p class="text-muted">Our system uses a trained logistic regression model to analyze breast mass characteristics.</p>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-start mb-3">
+                            <div class="me-3 text-center">
+                                <i class="fas fa-chart-line feature-icon floating" style="animation-delay: 0.5s"></i>
+                            </div>
+                            <div>
+                                <h5>30 Key Features</h5>
+                                <p class="text-muted">The model evaluates 30 different features extracted from digitized images of fine needle aspirates.</p>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-start">
+                            <div class="me-3 text-center">
+                                <i class="fas fa-shield-alt feature-icon floating" style="animation-delay: 1s"></i>
+                            </div>
+                            <div>
+                                <h5>Early Detection</h5>
+                                <p class="text-muted">Early detection can significantly improve treatment outcomes and survival rates.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card animate__animated animate__fadeInRight animate__delay-3s mt-4">
+                    <div class="card-header">
+                        <h3 class="mb-0"><i class="fas fa-hands-helping me-2"></i>Resources</h3>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <a href="https://www.breastcancer.org/" target="_blank"><i class="fas fa-external-link-alt me-2"></i>BreastCancer.org</a>
+                            </li>
+                            <li class="list-group-item">
+                                <a href="https://www.cancer.org/cancer/breast-cancer.html" target="_blank"><i class="fas fa-external-link-alt me-2"></i>American Cancer Society</a>
+                            </li>
+                            <li class="list-group-item">
+                                <a href="https://ww5.komen.org/" target="_blank"><i class="fas fa-external-link-alt me-2"></i>Susan G. Komen Foundation</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light py-4 mt-5">
+        <div class="container text-center">
+            <p class="text-muted mb-0">© 2023 Breast Cancer Prediction System | Early Detection Saves Lives</p>
+            <div class="mt-2">
+                <a href="#" class="text-decoration-none me-3"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="text-decoration-none me-3"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="text-decoration-none me-3"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="text-decoration-none"><i class="fab fa-github"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Only show result box if there's a message from the backend
+            {% if message %}
+            const resultBox = document.getElementById('resultBox');
+            if (resultBox) {
+                resultBox.style.display = 'block';
+            }
+            {% endif %}
+            
+            // Add floating animation to elements
+            const floatingElements = document.querySelectorAll('.floating');
+            floatingElements.forEach((el, index) => {
+                el.style.animationDelay = `${index * 0.2}s`;
+            });
+        });
+    </script>
+</body>
+</html>
